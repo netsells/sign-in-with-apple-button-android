@@ -11,10 +11,16 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.FragmentManager
-import com.willowtreeapps.signinwithapplebutton.*
+import com.willowtreeapps.signinwithapplebutton.R
+import com.willowtreeapps.signinwithapplebutton.SignInWithAppleCallback
+import com.willowtreeapps.signinwithapplebutton.SignInWithAppleConfiguration
+import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
+import com.willowtreeapps.signinwithapplebutton.SignInWithAppleService
+import com.willowtreeapps.signinwithapplebutton.toFunction
 
 class SignInWithAppleButton @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null,
+    context: Context,
+    attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 

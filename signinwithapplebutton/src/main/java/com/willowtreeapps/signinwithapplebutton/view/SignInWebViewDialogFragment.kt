@@ -111,7 +111,7 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
 
     // Javascript Callback
 
-    private fun runJavascript(){
+    private fun runJavascript() {
         activity?.runOnUiThread {
             webViewIfCreated?.loadUrl("javascript: (function() { ${FormInterceptorInterface.JS_TO_INJECT} } ) ()")
         }

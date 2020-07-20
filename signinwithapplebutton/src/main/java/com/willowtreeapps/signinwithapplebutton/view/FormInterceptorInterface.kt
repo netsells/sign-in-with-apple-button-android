@@ -59,11 +59,11 @@ class FormInterceptorInterface(private val expectedState: String, private val ca
             for(var i=0 ; i< form.elements.length; i++){
                 values += 
                     form.elements[i].name + 
-                    '${KEY_VALUE_SEPARATOR}' + 
+                    '$KEY_VALUE_SEPARATOR' + 
                     form.elements[i].value + 
-                    '${FORM_DATA_SEPARATOR}'
+                    '$FORM_DATA_SEPARATOR'
             }
-            window.${NAME}.processFormData(values);
+            window.$NAME.processFormData(values);
         }
         
         for(var i=0 ; i< document.forms.length ; i++){

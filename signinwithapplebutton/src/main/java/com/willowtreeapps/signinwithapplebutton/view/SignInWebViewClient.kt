@@ -35,7 +35,7 @@ internal class SignInWebViewClient(
     ): WebResourceResponse? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val uri = request?.url
-            if(!handled && uri != null && uri.toString().contains(attempt.redirectUri)){
+            if (!handled && uri != null && uri.toString().contains(attempt.redirectUri)) {
                 handled = true
                 javascriptCallback()
             }
@@ -44,7 +44,7 @@ internal class SignInWebViewClient(
     }
 
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        if(!handled && url?.contains(attempt.redirectUri) == true){
+        if (!handled && url?.contains(attempt.redirectUri) == true) {
             handled = true
             javascriptCallback()
         }
@@ -71,7 +71,7 @@ internal class SignInWebViewClient(
         }
     }
 
-    private fun handleRedirect(url: Uri){
+    private fun handleRedirect(url: Uri) {
         Log.d(SIGN_IN_WITH_APPLE_LOG_TAG, "Web view was forwarded to redirect URI")
 
         val codeParameter = url.getQueryParameter("code")
@@ -90,5 +90,4 @@ internal class SignInWebViewClient(
             }
         }
     }
-
 }

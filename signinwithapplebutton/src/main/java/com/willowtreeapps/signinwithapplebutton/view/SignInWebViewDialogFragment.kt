@@ -61,7 +61,9 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             }
         }
 
-        webView.webViewClient = SignInWebViewClient(authenticationAttempt, ::onCallback)
+        webView.webViewClient = SignInWebViewClient(authenticationAttempt, ::onCallback, ::runJavascript)
+        val formInterceptorInterface = FormInterceptorInterface(authenticationAttempt.state, ::onCallback)
+        webView.addJavascriptInterface(formInterceptorInterface, FormInterceptorInterface.NAME)
 
         if (savedInstanceState != null) {
             savedInstanceState.getBundle(WEB_VIEW_KEY)?.run {
@@ -105,5 +107,13 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             return
         }
         callback(result)
+    }
+
+    // Javascript Callback
+
+    private fun runJavascript(){
+        activity?.runOnUiThread {
+            webViewIfCreated?.loadUrl("javascript: (function() { ${FormInterceptorInterface.JS_TO_INJECT} } ) ()")
+        }
     }
 }

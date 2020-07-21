@@ -30,18 +30,21 @@ class SignInWithAppleService(
     internal data class AuthenticationAttempt(
         val authenticationUri: String,
         val redirectUri: String,
-        val state: String
+        val state: String,
+        val responseType: String
     ) : Parcelable {
         constructor(parcel: Parcel) : this(
             parcel.readString() ?: "invalid",
             parcel.readString() ?: "invalid",
-            parcel.readString() ?: "invalid"
+            parcel.readString() ?: "invalid",
+            parcel.readString() ?: "code"
         )
 
         override fun writeToParcel(parcel: Parcel, flags: Int) {
             parcel.writeString(authenticationUri)
             parcel.writeString(redirectUri)
             parcel.writeString(state)
+            parcel.writeString(responseType)
         }
 
         override fun describeContents(): Int {
@@ -72,7 +75,7 @@ class SignInWithAppleService(
                 val authenticationUri = Uri
                     .parse("https://appleid.apple.com/auth/authorize")
                     .buildUpon().apply {
-                        appendQueryParameter("response_type", "code")
+                        appendQueryParameter("response_type", configuration.responseType)
                         appendQueryParameter("v", "1.1.6")
                         appendQueryParameter("client_id", configuration.clientId)
                         appendQueryParameter("redirect_uri", configuration.redirectUri)
@@ -83,7 +86,7 @@ class SignInWithAppleService(
                     .build()
                     .toString()
 
-                return AuthenticationAttempt(authenticationUri, configuration.redirectUri, state)
+                return AuthenticationAttempt(authenticationUri, configuration.redirectUri, state, configuration.responseType)
             }
         }
     }

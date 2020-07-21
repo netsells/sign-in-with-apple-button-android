@@ -1,9 +1,14 @@
 package com.willowtreeapps.signinwithapplebutton.view
 
-import android.util.Log
 import android.webkit.JavascriptInterface
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleConfiguration
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
+import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.CODE
+import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.JS_TO_INJECT
+import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.NAME
+import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.STATE
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 /**
  * Original author https://github.com/pedrodanielcsantos
@@ -16,12 +21,16 @@ import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
  * - [STATE] : a _nonce_ string set in [AuthenticationAttempt.create] that needs to match [expectedState];
  * - [CODE] : the authorization code that'll be used to authenticate the user.
  */
-class FormInterceptorInterface(private val responseType: String, private val expectedState: String, private val callback: (SignInWithAppleResult) -> Unit) {
+class FormInterceptorInterface(
+    private val responseType: String,
+    private val expectedState: String,
+    private val callback: (SignInWithAppleResult) -> Unit
+) {
     @JavascriptInterface
     fun processFormData(formData: String) {
-        Log.i("url", formData)
         val values = formData.split(FORM_DATA_SEPARATOR)
-        val codeKey = if (responseType == SignInWithAppleConfiguration.RESPONSE_ID_TOKEN) ID_TOKEN else CODE
+        val codeKey =
+            if (responseType == SignInWithAppleConfiguration.RESPONSE_ID_TOKEN) ID_TOKEN else CODE
         val codeEncoded = values.find { it.startsWith(codeKey) }
         val stateEncoded = values.find { it.startsWith(STATE) }
 
@@ -31,7 +40,21 @@ class FormInterceptorInterface(private val responseType: String, private val exp
 
             if (stateValue == expectedState) {
                 // Success, authorizationCode is codeValue
-                callback(SignInWithAppleResult.Success(codeValue))
+                val userEncoded = values.find { it.startsWith(USER) }
+                val success = if (userEncoded != null) {
+                    val userValue = userEncoded.substringAfter(KEY_VALUE_SEPARATOR)
+                    val json = Json(JsonConfiguration.Stable)
+                    val userData = json.parse(UserData.serializer(), userValue)
+                    SignInWithAppleResult.Success(
+                        codeValue,
+                        userData.email,
+                        userData.name.firstName,
+                        userData.name.lastName
+                    )
+                } else {
+                    SignInWithAppleResult.Success(codeValue)
+                }
+                callback(success)
             } else {
                 // Error, state doesn't match.
                 callback(SignInWithAppleResult.Failure(IllegalArgumentException("state does not match")))
@@ -47,6 +70,7 @@ class FormInterceptorInterface(private val responseType: String, private val exp
         private const val STATE = "state"
         private const val CODE = "code"
         private const val ID_TOKEN = "id_token"
+        private const val USER = "user"
         private const val FORM_DATA_SEPARATOR = "|"
         private const val KEY_VALUE_SEPARATOR = "="
 

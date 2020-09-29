@@ -8,7 +8,6 @@ import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Co
 import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.NAME
 import com.willowtreeapps.signinwithapplebutton.view.FormInterceptorInterface.Companion.STATE
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 /**
  * Original author https://github.com/pedrodanielcsantos
@@ -43,8 +42,11 @@ class FormInterceptorInterface(
                 val userEncoded = values.find { it.startsWith(USER) }
                 val success = if (userEncoded != null) {
                     val userValue = userEncoded.substringAfter(KEY_VALUE_SEPARATOR)
-                    val json = Json(JsonConfiguration.Stable)
-                    val userData = json.parse(UserData.serializer(), userValue)
+                    val json = Json(from = Json.Default) {
+                        encodeDefaults = true
+                        allowStructuredMapKeys = true
+                    }
+                    val userData = json.decodeFromString(UserData.serializer(), userValue)
                     SignInWithAppleResult.Success(
                         codeValue,
                         userData.email,

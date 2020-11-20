@@ -3,6 +3,7 @@ package com.willowtreeapps.signinwithapplebutton.view
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -11,11 +12,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.FragmentManager
-import com.willowtreeapps.signinwithapplebutton.R
-import com.willowtreeapps.signinwithapplebutton.SignInWithAppleCallback
-import com.willowtreeapps.signinwithapplebutton.SignInWithAppleConfiguration
-import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
-import com.willowtreeapps.signinwithapplebutton.SignInWithAppleService
+import com.willowtreeapps.signinwithapplebutton.*
 import com.willowtreeapps.signinwithapplebutton.toFunction
 
 class SignInWithAppleButton @JvmOverloads constructor(
@@ -47,6 +44,7 @@ class SignInWithAppleButton @JvmOverloads constructor(
         val textSize = attributes.getDimensionPixelSize(R.styleable.SignInWithAppleButton_android_textSize, -1)
         val textStyle = attributes.getInt(R.styleable.SignInWithAppleButton_android_textStyle, 0)
         val fontFamily = attributes.getString(R.styleable.SignInWithAppleButton_android_fontFamily)
+        val buttonTextAppearance = attributes.getResourceId(R.styleable.SignInWithAppleButton_sign_in_with_apple_button_textAppearance, -1)
 
         // Text type
         val text = attributes.getInt(
@@ -82,13 +80,20 @@ class SignInWithAppleButton @JvmOverloads constructor(
             textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
         }
 
-        val typeface = if (fontFamily == null) {
-            Typeface.create(textView.typeface, textStyle)
+        if(buttonTextAppearance != -1) {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                textView.setTextAppearance(context, buttonTextAppearance)
+            } else {
+                textView.setTextAppearance(buttonTextAppearance)
+            }
         } else {
-            Typeface.create(fontFamily, textStyle)
+            val typeface = if (fontFamily == null) {
+                Typeface.create(textView.typeface, textStyle)
+            } else {
+                Typeface.create(fontFamily, textStyle)
+            }
+            textView.typeface = typeface
         }
-
-        textView.typeface = typeface
 
         textView.text = resources.getString(SignInTextType.values()[text].text)
     }
